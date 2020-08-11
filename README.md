@@ -18,6 +18,44 @@ Using this readme as a living document to help with project planning.
 2. apply transformations and rule sets
 3. Make a PR against the kustomize base
 
+#### MVP Spec
+```sources:
+- name: aws-auto-discover-manifest
+  type: manifest
+  recurse: false
+  github: kubernetes/autoscaler
+  path: cluster-autoscaler/cloudprovider/aws/examples/cluster-autoscaler-autodiscover.yaml
+  branch: master
+
+destinations:
+-  name: infra
+   github: rdelpret/cartographer-infra-test-repo
+   path: kustomize/cluster-autoscaler/base
+   type: kustomize
+-  name: namespaces
+   github: rdelpret/cartographer-infra-test-repo
+   path: namespaces
+   type: manfiest
+
+route:
+- source: '*'
+  objectTypes:
+  - namespace
+  destination: namespaces
+  transformations:
+  - cartograher-label
+  method: PR
+- source: '*'
+  objectTypes: '*'
+  destination: infra
+  transformations: []
+  method: PR
+
+transformations:
+- name: cargographer-label
+  addLabel: cartographer
+```
+
 ## Design
 - hold state in CRDs
 - microservices with redis pod
