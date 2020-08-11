@@ -63,4 +63,5 @@ transformations:
 - add frontend in v2, if we take the PR bot approach this could be pretty autonomous
 
 ## TODO
-- design data structure
+- [x] design basic data structure 
+- [] write code to unmarshall yaml into a struct
