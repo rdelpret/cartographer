@@ -1,4 +1,4 @@
-# cartographer
+# Cartographer
 An application to manage upstream, third party kubernetes manifests via a remote kustomization.yaml file or a remote helm chart. Cartographer will notify you of upstream changes and help you merge them into your infrastructure as code repositories.
 
 ## Use Cases
