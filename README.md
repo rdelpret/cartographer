@@ -13,6 +13,10 @@ Using this readme as a living document to help with project planning.
 1. Check for new tags
 2. make a PR to update the tag
 
+### Raw Kubernetes Manifests
+1. Check for updates
+2. apply transformations and rule sets
+3. Make a PR against the kustomize base
 
 ## Design
 - hold state in CRDs
