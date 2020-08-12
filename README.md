@@ -67,4 +67,6 @@ transformations:
 - [x] write code to unmarshall yaml into a struct
 - [x] create test infra repo cartographer-infra-test-repo
 - [x] initalize empty directories in test repo
-- [ ] loop through multiple yaml files and create a list of structs
+- [x] loop through multiple yaml files and create a list of structs
+- [ ] Reach out to github and pull the latest master of that file, write the commit to the app
+- [ ] make an inital PR against the test repo
