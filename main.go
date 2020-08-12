@@ -5,9 +5,12 @@ import (
     "gopkg.in/yaml.v2"
     "io/ioutil"
     "log"
+    "os"
+    "path/filepath"
 )
 
-type conf struct {
+// data structure for application
+type app struct {
   Destination destination `yaml:"destination"`
   Source  source `yaml:"source"`
 }
@@ -25,32 +28,63 @@ type source struct {
   Branch string `yaml:"branch"`
 }
 
-func loadConfig(file string) (c *conf) {
+// function that loads the config into the structs
+func loadAppFile(file string) app {
+
+  var a app
+
   source, err := ioutil.ReadFile(file)
 
   if err != nil {
       log.Fatal("Couldn't read yaml file:", err)
   }
 
-  err = yaml.Unmarshal(source, &c)
+  err = yaml.Unmarshal(source, &a)
 
   if err != nil {
       log.Fatal("Couldn't parse yaml file:", err)
   }
-  return c
+
+  return a
+
+}
+
+// function that pulls all the file names from
+// a directory and loads them into a slice
+func getConfFiles(dir string) []string {
+  var files []string
+  err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
+        files = append(files, path)
+        return nil
+    })
+    if err != nil {
+        panic(err)
+    }
+    return files[1:]
+}
+
+func PrintApp (file string, num int) app {
+  a := loadAppFile(file)
+  fmt.Printf("%d.\n", num)
+  fmt.Println("    ---- SOURCE ----")
+  fmt.Println("    source.name:", a.Source.Name)
+  fmt.Println("    source.github:", a.Source.Github)
+  fmt.Println("    source.path:", a.Source.Path)
+  fmt.Println()
+  fmt.Println("    -- DESTINATION --")
+  fmt.Println("    destination.name:", a.Destination.Name)
+  fmt.Println("    destination.name:", a.Destination.Github)
+  fmt.Println("    destination.path:", a.Destination.Path)
+  fmt.Println()
+  return a
 }
 
 func main() {
-    fmt.Println("Welcome to the Cartograhper! I found 1 application(s) to fetch.")
-    c := loadConfig("apps/cluster-autoscaler.yaml")
+    files:= getConfFiles("apps/")
+    fmt.Printf("Welcome to the Cartograhper! I found %d application(s) to fetch.\n", len(files))
     fmt.Println()
-    fmt.Println("1.")
-    fmt.Println("    ---- SOURCE ----")
-    fmt.Println("    source.name:", c.Source.Name)
-    fmt.Println("    source.github:", c.Source.Github)
-    fmt.Println()
-    fmt.Println("    -- DESTINATION --")
-    fmt.Println("    destination.name:", c.Destination.Name)
-    fmt.Println("    destination.name:", c.Destination.Github)
-    fmt.Println()
+    for i, f := range files {
+      PrintApp(f, i + 1)
+    }
+
 }

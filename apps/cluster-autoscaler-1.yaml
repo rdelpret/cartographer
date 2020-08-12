@@ -1,0 +1,12 @@
+source:
+  name: aws-auto-discover-manifest
+  type: manifest
+  github: kubernetes/autoscaler
+  path: cluster-autoscaler/cloudprovider/aws/examples/cluster-autoscaler-autodiscover.yaml
+  branch: master
+
+destination:
+  name: infra
+  github: rdelpret/cartographer-infra-test-repo
+  path: kustomize/cluster-autoscaler-1/base
+  type: kustomize
