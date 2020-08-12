@@ -25,7 +25,6 @@ type source struct {
   Branch string `yaml:"branch"`
 }
 
-
 func loadConfig(file string) (c *conf) {
   source, err := ioutil.ReadFile(file)
 
@@ -41,8 +40,17 @@ func loadConfig(file string) (c *conf) {
   return c
 }
 
-
 func main() {
+    fmt.Println("Welcome to the Cartograhper! I found 1 application(s) to fetch.")
     c := loadConfig("apps/cluster-autoscaler.yaml")
-    fmt.Println(c)
+    fmt.Println()
+    fmt.Println("1.")
+    fmt.Println("    ---- SOURCE ----")
+    fmt.Println("    source.name:", c.Source.Name)
+    fmt.Println("    source.github:", c.Source.Github)
+    fmt.Println()
+    fmt.Println("    -- DESTINATION --")
+    fmt.Println("    destination.name:", c.Destination.Name)
+    fmt.Println("    destination.name:", c.Destination.Github)
+    fmt.Println()
 }
