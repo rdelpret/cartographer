@@ -63,6 +63,8 @@ func getConfFiles(dir string) []string {
     return files[1:]
 }
 
+// function to demonstrate that we can
+// pull stuff in from yaml and create structs
 func PrintApp (file string, num int) app {
   a := loadAppFile(file)
   fmt.Printf("%d.\n", num)
