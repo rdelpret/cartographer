@@ -64,4 +64,5 @@ transformations:
 
 ## TODO
 - [x] design basic data structure 
-- [ ] write code to unmarshall yaml into a struct
+- [x] write code to unmarshall yaml into a struct
+- [ ] loop through multiple yaml files and create a list of structs
