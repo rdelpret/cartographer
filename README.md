@@ -65,4 +65,6 @@ transformations:
 ## TODO
 - [x] design basic data structure 
 - [x] write code to unmarshall yaml into a struct
+- [x] create test infra repo cartographer-infra-test-repo
+- [x] initalize empty directories in test repo
 - [ ] loop through multiple yaml files and create a list of structs
