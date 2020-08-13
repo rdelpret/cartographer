@@ -68,6 +68,8 @@ transformations:
 - [x] create test infra repo cartographer-infra-test-repo
 - [x] initalize empty directories in test repo
 - [x] loop through multiple yaml files and create a list of structs
-- [ ] impliment more of the original data spec (routes, multiple destinations / sources, transformations)
+- [x] impliment multiple sources
+- [x] impliment multiple destinations
+- [x] impliment mutliple routes
 - [ ] Reach out to github and pull the latest master of that file, write the commit to the app
 - [ ] make an inital PR against the test repo
