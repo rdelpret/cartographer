@@ -71,5 +71,8 @@ transformations:
 - [x] impliment multiple sources
 - [x] impliment multiple destinations
 - [x] impliment mutliple routes
+- [ ] pull github token in from secret, file to start
+- [ ] figure out what contexts do
+- [ ] create an abstraction for the git client so I can use it in multiple places, or just a flow for writing git functions
 - [ ] Reach out to github and pull the latest master of that file, write the commit to the app
 - [ ] make an inital PR against the test repo
