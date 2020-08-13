@@ -1,7 +1,10 @@
 package main
 
 import (
+	"context"
 	"fmt"
+	"github.com/google/go-github/github"
+	"golang.org/x/oauth2"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"log"
@@ -13,7 +16,7 @@ import (
 type app struct {
 	Destinations []destination `yaml:"destinations"`
 	Sources      []source      `yaml:"sources"`
-  Routes       []route       `yaml:"routes"`
+	Routes       []route       `yaml:"routes"`
 }
 
 type destination struct {
@@ -30,9 +33,9 @@ type source struct {
 }
 
 type route struct {
-  Sources []string `yaml:"sources"`
-  Destination string `yaml:"destination"`
-  ObjectTypes []string `yaml:"objectTypes"`
+	Sources     []string `yaml:"sources"`
+	Destination string   `yaml:"destination"`
+	ObjectTypes []string `yaml:"objectTypes"`
 }
 
 // function that loads the config into the structs
@@ -93,20 +96,40 @@ func PrintApp(file string, num int) app {
 		fmt.Println("      path:", d.Path)
 	}
 
-  fmt.Println()
-  fmt.Println("    routes:")
-  for _, r := range a.Routes {
-    fmt.Println("    - sources:", r.Sources)
-    fmt.Println("      objectTypes:", r.ObjectTypes)
-    fmt.Println("      destination:", r.Destination)
-  }
+	fmt.Println()
+	fmt.Println("    routes:")
+	for _, r := range a.Routes {
+		fmt.Println("    - sources:", r.Sources)
+		fmt.Println("      objectTypes:", r.ObjectTypes)
+		fmt.Println("      destination:", r.Destination)
+	}
 
 	fmt.Println()
 
 	return a
 }
 
+func githubStuff(token string) string {
+	ctx := context.Background()
+	ts := oauth2.StaticTokenSource(
+		&oauth2.Token{AccessToken: token},
+	)
+	tc := oauth2.NewClient(ctx, ts)
+
+	client := github.NewClient(tc)
+
+	// list all repositories for the authenticated user
+	repos, _, err := client.Repositories.List(ctx, "", nil)
+  if err != nil {
+		panic(err)
+	}
+  fmt.Println(repos)
+	return token
+}
+
 func main() {
+	githubStuff()
+
 	files := getConfFiles("apps/")
 	fmt.Printf("Welcome to the Cartograhper! I found %d application(s) to fetch.\n", len(files))
 	fmt.Println()
