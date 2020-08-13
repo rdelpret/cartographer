@@ -71,6 +71,7 @@ transformations:
 - [x] impliment multiple sources
 - [x] impliment multiple destinations
 - [x] impliment mutliple routes
+- [x] import git library and get client to auth / make some simple calls
 - [ ] pull github token in from secret, file to start
 - [ ] figure out what contexts do
 - [ ] create an abstraction for the git client so I can use it in multiple places, or just a flow for writing git functions
