@@ -78,6 +78,8 @@ transformations:
 - [x] clean up go-getter files
 - [ ] impliment list of files
 - [ ] add some comments and organize
+- [ ] understand go routines better
+- [ ] add concurency to go-getter reqests
 - [ ] convert to a loop that logs, remove the print statements to prove struct was loaded
 - [ ] convert to use docker
 - [ ] make an inital PR against the test repo
