@@ -10,6 +10,9 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
+	"github.com/hashicorp/go-getter"
+	"time"
 )
 
 // data structure for application
@@ -75,7 +78,7 @@ func getConfFiles(dir string) []string {
 
 // function to demonstrate that we can
 // pull stuff in from yaml and create structs
-func PrintApp(file string, num int) app {
+func ProcessApp(file string, num int) app {
 	a := loadAppFile(file)
 	fmt.Printf("%d.\n", num)
 	fmt.Println("    sources:")
@@ -84,7 +87,7 @@ func PrintApp(file string, num int) app {
 		fmt.Println("    - name:", s.Name)
 		fmt.Println("      github:", s.Github)
 		fmt.Println("      path:", s.Path)
-
+    downloadSource(s)
 	}
 
 	fmt.Println()
@@ -120,21 +123,51 @@ func githubStuff(token string) string {
 
 	// list all repositories for the authenticated user
 	repos, _, err := client.Repositories.List(ctx, "", nil)
-  if err != nil {
+	if err != nil {
 		panic(err)
 	}
-  fmt.Println(repos)
+	fmt.Println(repos)
 	return token
 }
 
+func loadGithubToken() string {
+
+	token, err := ioutil.ReadFile("secret/token")
+
+	if err != nil {
+		log.Fatal("Couldn't read token file:", err)
+	}
+
+	return strings.TrimSuffix(string(token), "\n")
+}
+
+func downloadSource(s source) string {
+	url := "https://github.com/" + s.Github + "//" + s.Path
+	loc := "repos/" + s.Name
+	err := getter.Get(loc, "git::" + url + "?ref=" + s.Branch)
+	if err != nil {
+	   log.Fatal(err)
+	}
+	return loc
+}
+
 func main() {
-	githubStuff()
+	//token := loadGithubToken()
 
 	files := getConfFiles("apps/")
 	fmt.Printf("Welcome to the Cartograhper! I found %d application(s) to fetch.\n", len(files))
 	fmt.Println()
 	for i, f := range files {
-		PrintApp(f, i+1)
-	}
+		ProcessApp(f, i+1)
+  }
+
+	time.Sleep(5 * time.Second)
+
+	err := os.RemoveAll("repos/")
+    if err != nil {
+        log.Fatal(err)
+    }
+		
+  //githubStuff(token)
 
 }
