@@ -1,7 +1,9 @@
 sources:
-- name: aws-auto-discover-manifest
+- name: aws-one-asg
   github: kubernetes/autoscaler
-  path: cluster-autoscaler/cloudprovider/aws/examples/cluster-autoscaler-autodiscover.yaml
+  path: cluster-autoscaler/cloudprovider/aws/examples
+  files:
+  - cluster-autoscaler-one-asg.yaml
   branch: master
 
 destinations:
