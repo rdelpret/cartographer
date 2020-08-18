@@ -1,7 +1,9 @@
 sources:
 - name: aws-auto-discover-manifest
   github: kubernetes/autoscaler
-  path: cluster-autoscaler/cloudprovider/aws/examples/cluster-autoscaler-autodiscover.yaml
+  path: cluster-autoscaler/cloudprovider/aws/examples
+  files:
+  - cluster-autoscaler-autodiscover.yaml
   branch: master
 
 destinations:
