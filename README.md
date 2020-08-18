@@ -72,9 +72,13 @@ transformations:
 - [x] impliment multiple destinations
 - [x] impliment mutliple routes
 - [x] import git library and get client to auth / make some simple calls
-- [ ] pull github token in from secret, file to start
-- [ ] figure out what contexts do
-- [ ] create an abstraction for the git client so I can use it in multiple places, or just a flow for writing git functions
-- [ ] Reach out to github and pull the latest master of that file, write the commit to the app
+- [x] pull github token in from secret, file to start
+- [x] figure out what contexts do
+- [x] use go-getter to pull in source files
+- [x] clean up go-getter files
+- [ ] impliment list of files
+- [ ] add some comments and organize
+- [ ] convert to a loop that logs, remove the print statements to prove struct was loaded
+- [ ] convert to use docker
 - [ ] make an inital PR against the test repo
 - [ ] look into using validation https://github.com/gookit/validate
