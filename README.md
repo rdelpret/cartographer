@@ -76,6 +76,10 @@ transformations:
 - [x] figure out what contexts do
 - [x] use go-getter to pull in source files
 - [x] clean up go-getter files
+- [x] use go-getter to pull in destination files
+- [x] tighten up cleanup function
+- [ ] convert to a loop that logs, remove the print statements to prove struct was loaded
+- [ ] check if destination file exists  
 - [ ] impliment list of files
 - [ ] add some comments and organize
 - [ ] standardize the way im handling errors
@@ -85,7 +89,6 @@ transformations:
 - [ ] split out to modules
 - [ ] understand go routines better
 - [ ] add concurency to go-getter reqests
-- [ ] convert to a loop that logs, remove the print statements to prove struct was loaded
 - [ ] convert to use docker
 - [ ] make an inital PR against the test repo
 - [ ] look into using validation https://github.com/gookit/validate

@@ -97,6 +97,7 @@ func ProcessApp(file string, num int) app {
 		fmt.Println("    - name:", d.Name)
 		fmt.Println("      github:", d.Github)
 		fmt.Println("      path:", d.Path)
+		downloadDestination(d)
 	}
 
 	fmt.Println()
@@ -143,12 +144,30 @@ func loadGithubToken() string {
 
 func downloadSource(s source) string {
 	url := "https://github.com/" + s.Github + "//" + s.Path
-	loc := "repos/" + s.Name
+	loc := "sources/" + s.Name
 	err := getter.Get(loc, "git::" + url + "?ref=" + s.Branch)
 	if err != nil {
 	   log.Fatal(err)
 	}
 	return loc
+}
+
+func downloadDestination(d destination) string {
+	url := "https://github.com/" + d.Github + "//" + d.Path
+	loc := "destinations/" + d.Name
+	err := getter.Get(loc, "git::" + url + "?ref=master")
+	if err != nil {
+		 fmt.Println(err)
+	}
+	return loc
+}
+
+func cleanup(dir string) {
+	err := os.RemoveAll(dir)
+    if err != nil {
+        fmt.Println(err)
+    }
+	return
 }
 
 func main() {
@@ -162,12 +181,9 @@ func main() {
   }
 
 	time.Sleep(5 * time.Second)
+  defer cleanup("sources/")
+	defer cleanup("destinations/")
 
-	err := os.RemoveAll("repos/")
-    if err != nil {
-        log.Fatal(err)
-    }
-		
   //githubStuff(token)
 
 }
