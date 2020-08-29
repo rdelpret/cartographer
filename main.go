@@ -1,16 +1,16 @@
 package main
 
 import (
-	"context"
+	//"context"
 	"fmt"
-	"github.com/google/go-github/github"
-	"golang.org/x/oauth2"
+	//"github.com/google/go-github/github"
+	//"golang.org/x/oauth2"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
-	"strings"
+	//"strings"
 	"github.com/hashicorp/go-getter"
 	"time"
 )
@@ -76,114 +76,68 @@ func getConfFiles(dir string) []string {
 	return files[1:]
 }
 
-// function to demonstrate that we can
-// pull stuff in from yaml and create structs
+// Downloads the source repo and places it in a temp directory
+func downloadSource(s source) string {
+	url := "https://github.com/" + s.Github + "//" + s.Path
+	loc := "temp/sources/" + s.Name
+	err := getter.Get(loc, "git::"+url+"?ref="+s.Branch)
+	if err != nil {
+		fmt.Println(err)
+	}
+	return loc
+}
+
+// Downloads a destination repo and puts in a temp directory
+func downloadDestination(d destination) string {
+	url := "https://github.com/" + d.Github + "//" + d.Path
+	loc := "temp/destinations/" + d.Name
+	err := getter.Get(loc, "git::"+url+"?ref=master")
+	if err != nil {
+		fmt.Println(err)
+	}
+	return loc
+}
+
+// Main function that process an "app"
 func ProcessApp(file string, num int) app {
+
+	log.Print("Loading ", file)
 	a := loadAppFile(file)
-	fmt.Printf("%d.\n", num)
-	fmt.Println("    sources:")
 
 	for _, s := range a.Sources {
-		fmt.Println("    - name:", s.Name)
-		fmt.Println("      github:", s.Github)
-		fmt.Println("      path:", s.Path)
-    downloadSource(s)
+		log.Printf("Processing Source {name: %s, github: %s, path: %s}\n", s.Name, s.Github, s.Path)
+		log.Println("Downloading source from", "https://github.com/"+s.Github+"//"+s.Path)
+		downloadSource(s)
 	}
-
-	fmt.Println()
-	fmt.Println("    destinations:")
 
 	for _, d := range a.Destinations {
-		fmt.Println("    - name:", d.Name)
-		fmt.Println("      github:", d.Github)
-		fmt.Println("      path:", d.Path)
+		log.Printf("Processing destination {name: %s, github: %s, path: %s}\n", d.Name, d.Github, d.Path)
+		log.Println("Downloading destination from", "https://github.com/"+d.Github+"//"+d.Path)
 		downloadDestination(d)
 	}
-
-	fmt.Println()
-	fmt.Println("    routes:")
-	for _, r := range a.Routes {
-		fmt.Println("    - sources:", r.Sources)
-		fmt.Println("      objectTypes:", r.ObjectTypes)
-		fmt.Println("      destination:", r.Destination)
-	}
-
-	fmt.Println()
-
 	return a
 }
 
-func githubStuff(token string) string {
-	ctx := context.Background()
-	ts := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: token},
-	)
-	tc := oauth2.NewClient(ctx, ts)
-
-	client := github.NewClient(tc)
-
-	// list all repositories for the authenticated user
-	repos, _, err := client.Repositories.List(ctx, "", nil)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(repos)
-	return token
-}
-
-func loadGithubToken() string {
-
-	token, err := ioutil.ReadFile("secret/token")
-
-	if err != nil {
-		log.Fatal("Couldn't read token file:", err)
-	}
-
-	return strings.TrimSuffix(string(token), "\n")
-}
-
-func downloadSource(s source) string {
-	url := "https://github.com/" + s.Github + "//" + s.Path
-	loc := "sources/" + s.Name
-	err := getter.Get(loc, "git::" + url + "?ref=" + s.Branch)
-	if err != nil {
-	   log.Fatal(err)
-	}
-	return loc
-}
-
-func downloadDestination(d destination) string {
-	url := "https://github.com/" + d.Github + "//" + d.Path
-	loc := "destinations/" + d.Name
-	err := getter.Get(loc, "git::" + url + "?ref=master")
-	if err != nil {
-		 fmt.Println(err)
-	}
-	return loc
-}
-
+//cleans up a directory
 func cleanup(dir string) {
+	log.Println("cleaning up", dir)
 	err := os.RemoveAll(dir)
-    if err != nil {
-        fmt.Println(err)
-    }
+	if err != nil {
+		fmt.Println(err)
+	}
 	return
 }
 
 func main() {
-	//token := loadGithubToken()
-
-	files := getConfFiles("apps/")
-	fmt.Printf("Welcome to the Cartograhper! I found %d application(s) to fetch.\n", len(files))
-	fmt.Println()
-	for i, f := range files {
-		ProcessApp(f, i+1)
-  }
-
-	time.Sleep(5 * time.Second)
-  defer cleanup("sources/")
-	defer cleanup("destinations/")
-
-  //githubStuff(token)
+	defer cleanup("temp/")
+	for {
+		files := getConfFiles("apps/")
+		log.Printf("Found %d application(s) in /app to process\n", len(files))
+		for i, f := range files {
+			ProcessApp(f, i+1)
+		}
+		cleanup("temp/")
+		time.Sleep(5 * time.Second)
+	}
 
 }

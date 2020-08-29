@@ -1,0 +1,35 @@
+func loadGithubToken() string {
+
+	token, err := ioutil.ReadFile("secret/token")
+
+	if err != nil {
+		log.Fatal("Couldn't read token file:", err)
+	}
+
+	return strings.TrimSuffix(string(token), "\n")
+}
+
+
+
+func githubStuff(token string) string {
+	ctx := context.Background()
+	ts := oauth2.StaticTokenSource(
+		&oauth2.Token{AccessToken: token},
+	)
+	tc := oauth2.NewClient(ctx, ts)
+
+	client := github.NewClient(tc)
+
+	// list all repositories for the authenticated user
+	repos, _, err := client.Repositories.List(ctx, "", nil)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(repos)
+	return token
+}
+
+
+	//token := loadGithubToken()
+
+  //githubStuff(token)

@@ -12,7 +12,7 @@ destinations:
   path: kustomize/cluster-autoscaler-2/base
 - name: infra
   github: rdelpret/cartographer-infra-test-repo
-  path: kubernetes/namespeaces/
+  path: kubernetes/namespaces/
 
 routes:
 - sources: []
