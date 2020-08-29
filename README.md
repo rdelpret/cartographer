@@ -78,6 +78,7 @@ transformations:
 - [x] clean up go-getter files
 - [ ] impliment list of files
 - [ ] add some comments and organize
+- [ ] standardize the way im handling errors
 - [ ] make an intial PR against test repo
 - [ ] compare what is in the test repo to what exists upstream
 - [ ] create a way to test initial PRs (onboarding) and incrimental changes with test repos
