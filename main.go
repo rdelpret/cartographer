@@ -136,7 +136,7 @@ func processApp(file string) {
 	var sourceFileListFromYaml []string
 	var destFileListFromDir []string
 
-  // all processing of sources that does not need awareness of destination
+  // all processing of sources that do not need awareness of destinations
 	for _, s := range a.Sources {
 		log.Printf("Processing Source {name: %s, github: %s, path: %s}\n", s.Name, s.Github, s.Path)
 		log.Println("Downloading source from", "https://github.com/"+s.Github+"//"+s.Path)
@@ -147,7 +147,7 @@ func processApp(file string) {
 			sourceFileListFromYaml = append(sourceFileListFromYaml, f)
 		}
 	}
-  // all processing of destination that does not need awareness of sources
+  // all processing of destinations that do not need awareness of sources
 	for _, d := range a.Destinations {
 		log.Printf("Processing destination {name: %s, github: %s, path: %s}\n", d.Name, d.Github, d.Path)
 		log.Println("Downloading destination from", "https://github.com/"+d.Github+"//"+d.Path)
@@ -169,8 +169,6 @@ func processApp(file string) {
       log.Println("I must diff file", f)
 		}
 	}
-
-
 
 	return
 }
