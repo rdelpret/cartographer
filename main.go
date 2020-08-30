@@ -22,17 +22,18 @@ type app struct {
 	Routes       []route       `yaml:"routes"`
 }
 
-type destination struct {
-	Name   string `yaml:"name"`
-	Github string `yaml:"github"`
-	Path   string `yaml:"path"`
-}
-
 type source struct {
 	Name   string `yaml:"name"`
 	Github string `yaml:"github"`
 	Path   string `yaml:"path"`
+	Files  []string `yaml:files`
 	Branch string `yaml:"branch"`
+}
+
+type destination struct {
+	Name   string `yaml:"name"`
+	Github string `yaml:"github"`
+	Path   string `yaml:"path"`
 }
 
 type route struct {
@@ -77,29 +78,29 @@ func getConfFiles(dir string) []string {
 }
 
 // Downloads the source repo and places it in a temp directory
-func downloadSource(s source) string {
+func downloadSource(s source) {
 	url := "https://github.com/" + s.Github + "//" + s.Path
 	loc := "temp/sources/" + s.Name
 	err := getter.Get(loc, "git::"+url+"?ref="+s.Branch)
 	if err != nil {
 		fmt.Println(err)
 	}
-	return loc
+	return
 }
 
 // Downloads a destination repo and puts in a temp directory
-func downloadDestination(d destination) string {
+func downloadDestination(d destination) {
 	url := "https://github.com/" + d.Github + "//" + d.Path
 	loc := "temp/destinations/" + d.Name
 	err := getter.Get(loc, "git::"+url+"?ref=master")
 	if err != nil {
 		fmt.Println(err)
 	}
-	return loc
+	return
 }
 
 // Main function that process an "app"
-func ProcessApp(file string, num int) app {
+func ProcessApp(file string, num int) {
 
 	log.Print("Loading ", file)
 	a := loadAppFile(file)
@@ -115,7 +116,7 @@ func ProcessApp(file string, num int) app {
 		log.Println("Downloading destination from", "https://github.com/"+d.Github+"//"+d.Path)
 		downloadDestination(d)
 	}
-	return a
+	return
 }
 
 //cleans up a directory
