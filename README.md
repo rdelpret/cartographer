@@ -78,7 +78,7 @@ transformations:
 - [x] clean up go-getter files
 - [x] use go-getter to pull in destination files
 - [x] tighten up cleanup function
-- [ ] convert to a loop that logs, remove the print statements to prove struct was loaded
+- [x] convert to a loop that logs, remove the print statements to prove struct was loaded
 - [ ] check if destination file exists  
 - [ ] impliment list of files
 - [ ] add some comments and organize
