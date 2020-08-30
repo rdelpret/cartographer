@@ -63,6 +63,7 @@ transformations:
 - add frontend in v2, if we take the PR bot approach this could be pretty autonomous
 
 ## TODO
+### General
 - [x] design basic data structure 
 - [x] write code to unmarshall yaml into a struct
 - [x] create test infra repo cartographer-infra-test-repo
@@ -79,16 +80,25 @@ transformations:
 - [x] use go-getter to pull in destination files
 - [x] tighten up cleanup function
 - [x] convert to a loop that logs, remove the print statements to prove struct was loaded
-- [ ] check if destination file exists  
-- [ ] impliment list of files
-- [ ] add some comments and organize
-- [ ] standardize the way im handling errors
-- [ ] make an intial PR against test repo
-- [ ] compare what is in the test repo to what exists upstream
-- [ ] create a way to test initial PRs (onboarding) and incrimental changes with test repos
-- [ ] split out to modules
+- [x] check if destination file exists  
+- [x] impliment list of files
+- [x] add some comments and organize
+- [x] standardize the way im handling errors
+- [x] decide if it needs to diff or create
+- [x] compare what files exist in the test repo to what exists upstream
+### Github
+- [ ] Create a branch and make a PR for file not existing
+- [ ] figure out a way to see if a PR already exists for this change (maybe just use PR name)
+### Diff Operations
+- [ ] figure out how to diff 2 files
+### Off the Happy Path
+- [ ] Handle directory not existing when go-getter tries to download
+### Routes
+- [ ] impliment routes, currently we are assuming a default route where all sources go to all destinations and ignoring the routes from the yaml
+### Performance / Best Practices
 - [ ] understand go routines better
 - [ ] add concurency to go-getter reqests
-- [ ] convert to use docker
-- [ ] make an inital PR against the test repo
 - [ ] look into using validation https://github.com/gookit/validate
+- [ ] split out to modules
+### Devops stuff
+- [ ] convert to use docker
