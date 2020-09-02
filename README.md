@@ -64,7 +64,7 @@ transformations:
 
 ## TODO
 ### General
-- [x] design basic data structure 
+- [x] design basic data structure
 - [x] write code to unmarshall yaml into a struct
 - [x] create test infra repo cartographer-infra-test-repo
 - [x] initalize empty directories in test repo
@@ -86,7 +86,9 @@ transformations:
 - [x] standardize the way im handling errors
 - [x] decide if it needs to diff or create
 - [x] compare what files exist in the test repo to what exists upstream
+- [ ] learn more about pointers and prefs
 ### Github
+- [x] pull in example code and get it to compile without flags
 - [ ] Create a branch and make a PR for file not existing
 - [ ] figure out a way to see if a PR already exists for this change (maybe just use PR name)
 ### Diff Operations
@@ -96,9 +98,9 @@ transformations:
 ### Routes
 - [ ] impliment routes, currently we are assuming a default route where all sources go to all destinations and ignoring the routes from the yaml
 ### Performance / Best Practices
+- [x] start splitting out into multiple files
 - [ ] understand go routines better
 - [ ] add concurency to go-getter reqests
 - [ ] look into using validation https://github.com/gookit/validate
-- [ ] split out to modules
 ### Devops stuff
 - [ ] convert to use docker
