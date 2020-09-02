@@ -1,18 +1,14 @@
 package main
 
 import (
-	//"context"
 	"fmt"
-	//"github.com/google/go-github/github"
-	//"golang.org/x/oauth2"
-	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
-	//"strings"
-	"github.com/hashicorp/go-getter"
 	"time"
+	"github.com/hashicorp/go-getter"
+	"gopkg.in/yaml.v2"
 )
 
 // --- DATA DEFINITIONS ---
@@ -47,12 +43,12 @@ type route struct {
 
 // simple function to test if string exists in []string
 func contains(l []string, s string) bool {
-    for _, a := range l {
-        if a == s {
-            return true
-        }
-    }
-    return false
+	for _, a := range l {
+		if a == s {
+			return true
+		}
+	}
+	return false
 }
 
 //deletes a given directory
@@ -125,7 +121,6 @@ func downloadDestination(d destination) []string {
 	return ls(loc)
 }
 
-
 // --- CARTOPGRAPHER APP LOGIC ---
 
 // Main function that process an "app"
@@ -136,7 +131,7 @@ func processApp(file string) {
 	var sourceFileListFromYaml []string
 	var destFileListFromDir []string
 
-  // all processing of sources that do not need awareness of destinations
+	// all processing of sources that do not need awareness of destinations
 	for _, s := range a.Sources {
 		log.Printf("Processing Source {name: %s, github: %s, path: %s}\n", s.Name, s.Github, s.Path)
 		log.Println("Downloading source from", "https://github.com/"+s.Github+"//"+s.Path)
@@ -147,14 +142,14 @@ func processApp(file string) {
 			sourceFileListFromYaml = append(sourceFileListFromYaml, f)
 		}
 	}
-  // all processing of destinations that do not need awareness of sources
+	// all processing of destinations that do not need awareness of sources
 	for _, d := range a.Destinations {
 		log.Printf("Processing destination {name: %s, github: %s, path: %s}\n", d.Name, d.Github, d.Path)
 		log.Println("Downloading destination from", "https://github.com/"+d.Github+"//"+d.Path)
 
 		downloadedFileList := downloadDestination(d)
 
-		for _, f := range downloadedFileList  {
+		for _, f := range downloadedFileList {
 			destFileListFromDir = append(destFileListFromDir, f)
 		}
 	}
@@ -163,10 +158,10 @@ func processApp(file string) {
 	// we will need to do some work here to impliment routes but that can be plugged in later
 
 	for _, f := range sourceFileListFromYaml {
-    if !(contains(destFileListFromDir, f)) {
+		if !(contains(destFileListFromDir, f)) {
 			log.Println("I must create file", f)
 		} else {
-      log.Println("I must diff file", f)
+			log.Println("I must diff file", f)
 		}
 	}
 
