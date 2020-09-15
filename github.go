@@ -1,62 +1,126 @@
+// Copyright 2018 The go-github AUTHORS. All rights reserved.
+//
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+// The commitpr command utilizes go-github as a CLI tool for
+// pushing files to a branch and creating a pull request from it.
+// It takes an auth token as an environment variable and creates
+// the commit and the PR under the account affiliated with that token.
+//
+// The purpose of this example is to show how to use refs, trees and commits to
+// create commits and pull requests.
+//
+// Note, if you want to push a single file, you probably prefer to use the
+// content API. An example is available here:
+// https://godoc.org/github.com/google/go-github/github#example-RepositoriesService-CreateFile
+//
+// Note, for this to work at least 1 commit is needed, so you if you use this
+// after creating a repository you might want to make sure you set `AutoInit` to
+// `true`.
 package main
 
 import (
 	"context"
-	"errors"
+	//"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
-	"os"
 	"strings"
-	"time"
+	//"time"
+
 	"github.com/google/go-github/github"
 	"golang.org/x/oauth2"
 )
 
+type pullRequest struct {
+	sourceOwner   string
+	sourceRepo    string
+	commitMessage string
+	commitBranch  string
+	baseBranch    string
+	prRepoOwner   string
+	prRepo        string
+	prBranch      string
+	prSubject     string
+	prDescription string
+	sourceFiles   string
+	authorName    string
+	authorEmail   string
+}
 
-	var sourceOwner   string// Name of the owner (user or org) of the repo to create the commit in.
-	var sourceRepo    string // Name of repo to create the commit in.
-	var commitMessage string // Content of the commit message.
-	var commitBranch  string // Name of branch to create the commit in. If it does not already exists, it will be created using the `base-branch` parameter
-	var baseBranch    string // Name of branch to create the `commit-branch` from."
-	var prRepoOwner   string // Name of the owner (user or org) of the repo to create the PR against. If not specified, the value of the `-source-owner` flag will be used.
-	var prRepo        string // Name of repo to create the PR against. If not specified, the value of the `-source-repo` flag will be used.
-	var prBranch      string // Name of branch to create the PR against (the one you want to merge your branch in via the PR).
-	var prSubject     string // Title of the pull request. If not specified, no pull request will be created.
-	var prDescription string // Text to put in the description of the pull request.
-	var sourceFiles   string // Comma-separated list of files to commit and their location.
-                           // If the file should be in the same location with the same name, you can just put the file name and omit the repetition.
-                           // Example: README.md,main.go:github/examples/commitpr/main.go`)
-	var authorName    string // Name of the author of the commit.
-	var authorEmail   string // Email of the author of the commit.
+func loadGithubToken() string {
+
+	token, err := ioutil.ReadFile("secret/token")
+
+	if err != nil {
+		log.Fatal("Couldn't read token file:", err)
+	}
+
+	return strings.TrimSuffix(string(token), "\n")
+}
 
 
+func main() {
+  var pr pullRequest
+	pr.sourceOwner = "rdelpret"
+	pr.sourceRepo  = "cartographer-infra-test-repo"
+	pr.commitMessage = "cartographer test"
+	pr.commitBranch = "test"
+	pr.baseBranch = "master"
+	pr.prRepoOwner = "rdelpret"
+	pr.prRepo = "cartographer-infra-test-repo"
+	pr.prBranch = "master"
+	pr.prSubject = "test"
+	pr.prDescription = "test"
+	pr.sourceFiles = "test2/test,test"
+
+  token := loadGithubToken()
+
+	if token == "" {
+		log.Fatal("No github token found")
+	}
+
+  ctx := context.Background()
+	ts := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: token})
+	tc := oauth2.NewClient(ctx, ts)
+	client := github.NewClient(tc)
+
+  fmt.Println(pr)
+	fmt.Println(token)
+  fmt.Println(client)
+}
+
+
+
+
+/*
 var client *github.Client
 var ctx = context.Background()
 
 // getRef returns the commit branch reference object if it exists or creates it
 // from the base branch before returning it.
 func getRef() (ref *github.Reference, err error) {
-	if ref, _, err = client.Git.GetRef(ctx, sourceOwner, sourceRepo, "refs/heads/"+commitBranch); err == nil {
+	if ref, _, err = client.Git.GetRef(ctx, *sourceOwner, *sourceRepo, "refs/heads/"+*commitBranch); err == nil {
 		return ref, nil
 	}
 
 	// We consider that an error means the branch has not been found and needs to
 	// be created.
-	if commitBranch == baseBranch {
+	if *commitBranch == *baseBranch {
 		return nil, errors.New("The commit branch does not exist but `-base-branch` is the same as `-commit-branch`")
 	}
 
-	if baseBranch == "" {
+	if *baseBranch == "" {
 		return nil, errors.New("The `-base-branch` should not be set to an empty string when the branch specified by `-commit-branch` does not exists")
 	}
 
 	var baseRef *github.Reference
-	if baseRef, _, err = client.Git.GetRef(ctx, sourceOwner, sourceRepo, "refs/heads/"+baseBranch); err != nil {
+	if baseRef, _, err = client.Git.GetRef(ctx, *sourceOwner, *sourceRepo, "refs/heads/"+*baseBranch); err != nil {
 		return nil, err
 	}
-	newRef := &github.Reference{Ref: github.String("refs/heads/" + commitBranch), Object: &github.GitObject{SHA: baseRef.Object.SHA}}
-	ref, _, err = client.Git.CreateRef(ctx, sourceOwner, sourceRepo, newRef)
+	newRef := &github.Reference{Ref: github.String("refs/heads/" + *commitBranch), Object: &github.GitObject{SHA: baseRef.Object.SHA}}
+	ref, _, err = client.Git.CreateRef(ctx, *sourceOwner, *sourceRepo, newRef)
 	return ref, err
 }
 
@@ -67,7 +131,7 @@ func getTree(ref *github.Reference) (tree *github.Tree, err error) {
 	entries := []*github.TreeEntry{}
 
 	// Load each file into the tree.
-	for _, fileArg := range strings.Split(sourceFiles, ",") {
+	for _, fileArg := range strings.Split(*sourceFiles, ",") {
 		file, content, err := getFileContent(fileArg)
 		if err != nil {
 			return nil, err
@@ -75,7 +139,7 @@ func getTree(ref *github.Reference) (tree *github.Tree, err error) {
 		entries = append(entries, &github.TreeEntry{Path: github.String(file), Type: github.String("blob"), Content: github.String(string(content)), Mode: github.String("100644")})
 	}
 
-	tree, _, err = client.Git.CreateTree(ctx, sourceOwner, sourceRepo, *ref.Object.SHA, entries)
+	tree, _, err = client.Git.CreateTree(ctx, *sourceOwner, *sourceRepo, *ref.Object.SHA, entries)
 	return tree, err
 }
 
@@ -102,7 +166,7 @@ func getFileContent(fileArg string) (targetName string, b []byte, err error) {
 // pushCommit creates the commit in the given reference using the given tree.
 func pushCommit(ref *github.Reference, tree *github.Tree) (err error) {
 	// Get the parent commit to attach the commit to.
-	parent, _, err := client.Repositories.GetCommit(ctx, sourceOwner, sourceRepo, *ref.Object.SHA)
+	parent, _, err := client.Repositories.GetCommit(ctx, *sourceOwner, *sourceRepo, *ref.Object.SHA)
 	if err != nil {
 		return err
 	}
@@ -111,44 +175,44 @@ func pushCommit(ref *github.Reference, tree *github.Tree) (err error) {
 
 	// Create the commit using the tree.
 	date := time.Now()
-	author := &github.CommitAuthor{Date: &date, Name: &authorName, Email: &authorEmail}
-	commit := &github.Commit{Author: author, Message: &commitMessage, Tree: tree, Parents: []*github.Commit{parent.Commit}}
-	newCommit, _, err := client.Git.CreateCommit(ctx, sourceOwner, sourceRepo, commit)
+	author := &github.CommitAuthor{Date: &date, Name: authorName, Email: authorEmail}
+	commit := &github.Commit{Author: author, Message: commitMessage, Tree: tree, Parents: []*github.Commit{parent.Commit}}
+	newCommit, _, err := client.Git.CreateCommit(ctx, *sourceOwner, *sourceRepo, commit)
 	if err != nil {
 		return err
 	}
 
 	// Attach the commit to the master branch.
 	ref.Object.SHA = newCommit.SHA
-	_, _, err = client.Git.UpdateRef(ctx, sourceOwner, sourceRepo, ref, false)
+	_, _, err = client.Git.UpdateRef(ctx, *sourceOwner, *sourceRepo, ref, false)
 	return err
 }
 
 // createPR creates a pull request. Based on: https://godoc.org/github.com/google/go-github/github#example-PullRequestsService-Create
 func createPR() (err error) {
-	if prSubject == "" {
+	if *prSubject == "" {
 		return errors.New("missing `-pr-title` flag; skipping PR creation")
 	}
 
-	if prRepoOwner != "" && prRepoOwner != sourceOwner {
-		commitBranch = fmt.Sprintf("%s:%s", sourceOwner, commitBranch)
+	if *prRepoOwner != "" && *prRepoOwner != *sourceOwner {
+		*commitBranch = fmt.Sprintf("%s:%s", *sourceOwner, *commitBranch)
 	} else {
 		prRepoOwner = sourceOwner
 	}
 
-	if prRepo == "" {
+	if *prRepo == "" {
 		prRepo = sourceRepo
 	}
 
 	newPR := &github.NewPullRequest{
-		Title:               &prSubject,
-		Head:                &commitBranch,
-		Base:                &prBranch,
-		Body:                &prDescription,
+		Title:               prSubject,
+		Head:                commitBranch,
+		Base:                prBranch,
+		Body:                prDescription,
 		MaintainerCanModify: github.Bool(true),
 	}
 
-	pr, _, err := client.PullRequests.Create(ctx, prRepoOwner, prRepo, newPR)
+	pr, _, err := client.PullRequests.Create(ctx, *prRepoOwner, *prRepo, newPR)
 	if err != nil {
 		return err
 	}
@@ -157,12 +221,24 @@ func createPR() (err error) {
 	return nil
 }
 
-func gitstuff() {
-	token := os.Getenv("GITHUB_AUTH_TOKEN")
+func loadGithubToken() string {
+
+	token, err := ioutil.ReadFile("secret/token")
+
+	if err != nil {
+		log.Fatal("Couldn't read token file:", err)
+	}
+
+	return strings.TrimSuffix(string(token), "\n")
+}
+
+func main() {
+	token := loadGithubToken()
+	flag.Parse()
 	if token == "" {
 		log.Fatal("Unauthorized: No token present")
 	}
-	if sourceOwner == "" || sourceRepo == "" || commitBranch == "" || sourceFiles == "" || authorName == "" || authorEmail == "" {
+	if *sourceOwner == "" || *sourceRepo == "" || *commitBranch == "" || *sourceFiles == "" || *authorName == "" || *authorEmail == "" {
 		log.Fatal("You need to specify a non-empty value for the flags `-source-owner`, `-source-repo`, `-commit-branch`, `-files`, `-author-name` and `-author-email`")
 	}
 	ts := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: token})
@@ -190,3 +266,4 @@ func gitstuff() {
 		log.Fatalf("Error while creating the pull request: %s", err)
 	}
 }
+*/
