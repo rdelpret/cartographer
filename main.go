@@ -2,13 +2,13 @@ package main
 
 import (
 	"fmt"
+	"github.com/hashicorp/go-getter"
+	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
 	"time"
-	"github.com/hashicorp/go-getter"
-	"gopkg.in/yaml.v2"
 )
 
 // --- DATA DEFINITIONS ---
