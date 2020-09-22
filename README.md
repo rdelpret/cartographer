@@ -86,11 +86,13 @@ transformations:
 - [x] standardize the way im handling errors
 - [x] decide if it needs to diff or create
 - [x] compare what files exist in the test repo to what exists upstream
-- [ ] learn more about pointers and prefs
+- [x] learn more about pointers and prefs
+- [ ] hook the github PR creation code into the create case
 ### Github
 - [x] pull in example code and get it to compile without flags
-- [ ] Create a branch and make a PR for file not existing
-- [ ] figure out a way to see if a PR already exists for this change (maybe just use PR name)
+- [x] Create a branch and make a PR for file not existing
+- [x] figure out a way to see if a PR already exists for this change (maybe just use PR name)
+- [ ] cleanup the code some more (comments, logging etc)
 ### Diff Operations
 - [ ] figure out how to diff 2 files
 ### Off the Happy Path
