@@ -4,12 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/google/go-github/github"
+	"golang.org/x/oauth2"
 	"io/ioutil"
 	"log"
 	"strings"
 	"time"
-	"github.com/google/go-github/github"
-	"golang.org/x/oauth2"
 )
 
 type pullRequest struct {
@@ -31,25 +31,13 @@ type pullRequest struct {
 var client *github.Client
 var ctx = context.Background()
 
-// getRef returns the commit branch reference object if it exists or creates it
-// from the base branch before returning it.
 func getRef(pr pullRequest, client *github.Client) (ref *github.Reference, err error) {
-	if ref, _, err = client.Git.GetRef(ctx, pr.sourceOwner, pr.sourceRepo, "refs/heads/"+ pr.commitBranch); err == nil {
+	if ref, _, err = client.Git.GetRef(ctx, pr.sourceOwner, pr.sourceRepo, "refs/heads/"+pr.commitBranch); err == nil {
 		return ref, nil
 	}
 
-	// We consider that an error means the branch has not been found and needs to
-	// be created.
-	if pr.commitBranch == pr.baseBranch {
-		return nil, errors.New("The commit branch does not exist but `-base-branch` is the same as `-commit-branch`")
-	}
-
-	if pr.baseBranch == "" {
-		return nil, errors.New("The `-base-branch` should not be set to an empty string when the branch specified by `-commit-branch` does not exists")
-	}
-
 	var baseRef *github.Reference
-	if baseRef, _, err = client.Git.GetRef(ctx, pr.sourceOwner, pr.sourceRepo, "refs/heads/"+ pr.baseBranch); err != nil {
+	if baseRef, _, err = client.Git.GetRef(ctx, pr.sourceOwner, pr.sourceRepo, "refs/heads/"+pr.baseBranch); err != nil {
 		return nil, err
 	}
 	newRef := &github.Reference{Ref: github.String("refs/heads/" + pr.commitBranch), Object: &github.GitObject{SHA: baseRef.Object.SHA}}
@@ -57,8 +45,6 @@ func getRef(pr pullRequest, client *github.Client) (ref *github.Reference, err e
 	return ref, err
 }
 
-// getTree generates the tree to commit based on the given files and the commit
-// of the ref you got in getRef.
 func getTree(pr pullRequest, client *github.Client, ref *github.Reference) (tree *github.Tree, err error) {
 	// Create a tree with what to commit.
 	entries := []*github.TreeEntry{}
@@ -96,7 +82,6 @@ func getFileContent(fileArg string) (targetName string, b []byte, err error) {
 	return targetName, b, err
 }
 
-// pushCommit creates the commit in the given reference using the given tree.
 func pushCommit(pr pullRequest, client *github.Client, ref *github.Reference, tree *github.Tree) (err error) {
 	// Get the parent commit to attach the commit to.
 	parent, _, err := client.Repositories.GetCommit(ctx, pr.sourceOwner, pr.sourceRepo, *ref.Object.SHA)
@@ -121,7 +106,6 @@ func pushCommit(pr pullRequest, client *github.Client, ref *github.Reference, tr
 	return err
 }
 
-// createPR creates a pull request. Based on: https://godoc.org/github.com/google/go-github/github#example-PullRequestsService-Create
 func createPR(pr pullRequest, client *github.Client) (err error) {
 	if pr.prSubject == "" {
 		return errors.New("missing `-pr-title` flag; skipping PR creation")
@@ -154,7 +138,7 @@ func createPR(pr pullRequest, client *github.Client) (err error) {
 	return nil
 }
 
-func checkPR(pr pullRequest, client *github.Client) (bool,error){
+func checkPR(pr pullRequest, client *github.Client) (bool, error) {
 
 	if pr.prRepoOwner != "" && pr.prRepoOwner != pr.sourceOwner {
 		pr.commitBranch = fmt.Sprintf("%s:%s", pr.sourceOwner, pr.commitBranch)
@@ -190,9 +174,9 @@ func loadGithubToken() string {
 }
 
 func main() {
-  var pr pullRequest
+	var pr pullRequest
 	pr.sourceOwner = "rdelpret"
-	pr.sourceRepo  = "cartographer-infra-test-repo"
+	pr.sourceRepo = "cartographer-infra-test-repo"
 	pr.commitMessage = "cartographer test"
 	pr.commitBranch = "test"
 	pr.baseBranch = "master"
@@ -205,7 +189,7 @@ func main() {
 	pr.authorName = "rdelpret"
 	pr.authorEmail = "robbie@lola.com"
 
-  token := loadGithubToken()
+	token := loadGithubToken()
 
 	if token == "" {
 		log.Fatal("No github token found")
@@ -215,7 +199,7 @@ func main() {
 	tc := oauth2.NewClient(ctx, ts)
 	client := github.NewClient(tc)
 
-  exists, err := checkPR(pr, client)
+	exists, err := checkPR(pr, client)
 	if err != nil {
 		log.Printf("Unable to list open PRs: %s\n", err)
 		return
