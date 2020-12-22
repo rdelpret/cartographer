@@ -31,21 +31,9 @@ type pullRequest struct {
 var client *github.Client
 var ctx = context.Background()
 
-// getRef returns the commit branch reference object if it exists or creates it
-// from the base branch before returning it.
 func getRef(pr pullRequest, client *github.Client) (ref *github.Reference, err error) {
 	if ref, _, err = client.Git.GetRef(ctx, pr.sourceOwner, pr.sourceRepo, "refs/heads/"+pr.commitBranch); err == nil {
 		return ref, nil
-	}
-
-	// We consider that an error means the branch has not been found and needs to
-	// be created.
-	if pr.commitBranch == pr.baseBranch {
-		return nil, errors.New("The commit branch does not exist but `-base-branch` is the same as `-commit-branch`")
-	}
-
-	if pr.baseBranch == "" {
-		return nil, errors.New("The `-base-branch` should not be set to an empty string when the branch specified by `-commit-branch` does not exists")
 	}
 
 	var baseRef *github.Reference
@@ -57,8 +45,6 @@ func getRef(pr pullRequest, client *github.Client) (ref *github.Reference, err e
 	return ref, err
 }
 
-// getTree generates the tree to commit based on the given files and the commit
-// of the ref you got in getRef.
 func getTree(pr pullRequest, client *github.Client, ref *github.Reference) (tree *github.Tree, err error) {
 	// Create a tree with what to commit.
 	entries := []*github.TreeEntry{}
@@ -96,7 +82,6 @@ func getFileContent(fileArg string) (targetName string, b []byte, err error) {
 	return targetName, b, err
 }
 
-// pushCommit creates the commit in the given reference using the given tree.
 func pushCommit(pr pullRequest, client *github.Client, ref *github.Reference, tree *github.Tree) (err error) {
 	// Get the parent commit to attach the commit to.
 	parent, _, err := client.Repositories.GetCommit(ctx, pr.sourceOwner, pr.sourceRepo, *ref.Object.SHA)
@@ -121,7 +106,6 @@ func pushCommit(pr pullRequest, client *github.Client, ref *github.Reference, tr
 	return err
 }
 
-// createPR creates a pull request. Based on: https://godoc.org/github.com/google/go-github/github#example-PullRequestsService-Create
 func createPR(pr pullRequest, client *github.Client) (err error) {
 	if pr.prSubject == "" {
 		return errors.New("missing `-pr-title` flag; skipping PR creation")
@@ -190,6 +174,7 @@ func loadGithubToken() string {
 }
 
 func makePR(pr pullRequest) {
+
 
 	token := loadGithubToken()
 
