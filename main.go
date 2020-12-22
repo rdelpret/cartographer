@@ -1,13 +1,16 @@
 package main
 
 import (
+	"crypto/sha256"
 	"fmt"
 	"github.com/hashicorp/go-getter"
 	"gopkg.in/yaml.v2"
+	"io"
 	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 )
 
@@ -49,6 +52,22 @@ func contains(l []string, s string) bool {
 		}
 	}
 	return false
+}
+
+func hash(file string) string {
+
+	f, err := os.Open(file)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer f.Close()
+
+	h := sha256.New()
+	if _, err := io.Copy(h, f); err != nil {
+		log.Fatal(err)
+	}
+
+	return fmt.Sprintf("%x", h.Sum(nil))[0:7]
 }
 
 //deletes a given directory
@@ -130,6 +149,8 @@ func processApp(file string) {
 	a := loadAppFile(file)
 	var sourceFileListFromYaml []string
 	var destFileListFromDir []string
+	var destGitHub []string
+	var sourceGitHub []string
 
 	// all processing of sources that do not need awareness of destinations
 	for _, s := range a.Sources {
@@ -139,8 +160,9 @@ func processApp(file string) {
 		downloadSource(s)
 
 		for _, f := range s.Files {
-			sourceFileListFromYaml = append(sourceFileListFromYaml, f)
+			sourceFileListFromYaml = append(sourceFileListFromYaml, "temp/sources/"+s.Name+"/"+f)
 		}
+		sourceGitHub = strings.Split(s.Github, "/")
 	}
 	// all processing of destinations that do not need awareness of sources
 	for _, d := range a.Destinations {
@@ -150,20 +172,45 @@ func processApp(file string) {
 		downloadedFileList := downloadDestination(d)
 
 		for _, f := range downloadedFileList {
-			destFileListFromDir = append(destFileListFromDir, f)
+			destFileListFromDir = append(destFileListFromDir, "temp/destinations/"+d.Name+"/"+f)
 		}
+		destGitHub = strings.Split(d.Github, "/")
 	}
 
 	// For now assume the file list for each source must appear in each destination
 	// we will need to do some work here to impliment routes but that can be plugged in later
+	sourceFiles := ""
 
 	for _, f := range sourceFileListFromYaml {
 		if !(contains(destFileListFromDir, f)) {
-			log.Println("I must create file", f)
+			if sourceFiles == "" {
+				sourceFiles = sourceFiles + f
+			} else {
+				sourceFiles = sourceFiles + "," + f
+			}
+
 		} else {
 			log.Println("I must diff file", f)
 		}
+
 	}
+    fileHash := hash(sourceFiles)
+	var pr pullRequest
+	pr.sourceOwner = destGitHub[0]
+	pr.sourceRepo = destGitHub[1]
+	pr.commitMessage = "Cartographer: Update " + sourceGitHub[1]
+	pr.commitBranch = "cartographer/" + sourceGitHub[1] + "/" + fileHash
+	pr.baseBranch = "master"
+	pr.prRepoOwner = destGitHub[0]
+	pr.prRepo = destGitHub[1]
+	pr.prBranch = "master"
+	pr.prSubject = "Cartographer: Update " + sourceGitHub[1] + " [" + fileHash + "]"
+	pr.prDescription = "Cartographer: Update " + sourceGitHub[1]
+	pr.sourceFiles = sourceFiles
+	pr.authorName = "rdelpret"
+	pr.authorEmail = "robbie@lola.com"
+
+	makePR(pr)
 
 	return
 }
@@ -178,8 +225,9 @@ func main() {
 		for _, f := range files {
 			processApp(f)
 		}
-		cleanup("temp/")
 		time.Sleep(60 * time.Second)
+
+		cleanup("temp/")
 	}
 
 }
