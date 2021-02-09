@@ -175,7 +175,6 @@ func loadGithubToken() string {
 
 func makePR(pr pullRequest) {
 
-
 	token := loadGithubToken()
 
 	if token == "" {
